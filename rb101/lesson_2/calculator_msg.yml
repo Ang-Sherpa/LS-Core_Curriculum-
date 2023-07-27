@@ -1,0 +1,25 @@
+# Configuration file for Calculator.rb
+
+get_name: "Hello! Enter your name:"
+invalid_name: "Make sure to use a valid name."
+welcome: "Welcome to Calculator!"
+user_name: "Hi, "
+first_num: "What is the first number?"
+second_num: "What is the second number?"
+invalid_num: "Please enter a valid number."
+zero_denom: "Zero division error. Please enter a nonzero number for the denominator"
+operator_prompt:  
+  "What operation would you like to perform? \n
+    1) add \n
+    2) subtract \n
+    3) multiply \n
+    4) divide"
+invalid_op:  
+  "Must choose 1, 2, 3, 4. \n
+    1) add \n
+    2) subtract \n
+    3) multiply \n
+    4) divide"
+final_result: "Your result is "                               
+continue?: "Do you want to perform another calculaion? (Y to calculate again)"
+goodbye: "Thanks for using the calculator! Goodbye "
