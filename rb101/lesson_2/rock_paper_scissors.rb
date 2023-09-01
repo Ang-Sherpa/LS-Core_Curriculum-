@@ -16,6 +16,7 @@ def border_lines
 end
 
 def display_welcome_prompt
+  puts
   prompt('Welcome to rock, paper, scissors, lizard, spock.')
   prompt('The first player to win three rounds will be declared the grand winner!')
   border_lines
@@ -37,7 +38,7 @@ end
 def set_spock_or_scissors
   prompt("You typed 's' as your choice. Did you mean spock(sp) or scissors(sc)?")
   loop do
-    choice = gets.chomp
+    choice = gets.chomp.downcase
     if %w[spock sp].include?(choice)
       return 'spock'
     elsif %w[scissors sc].include?(choice)
@@ -58,76 +59,97 @@ def get_full_choice_name(choice)
   choice_name[choice]
 end
 
+def set_player_choice
+  player_choice = set_valid_choice
+
+  player_choice = set_spock_or_scissors if player_choice == 's'
+
+  player_choice = get_full_choice_name(player_choice) if player_choice.length <= 2
+
+  player_choice
+end
+
 def win?(first, second)
   MOVES[first].include?(second)
+end
+
+def wins_ties_total(player_choice, computer_choice, tally_of_wins)
+  if win?(player_choice, computer_choice)
+    tally_of_wins[:player_wins] = tally_of_wins[:player_wins] + 1
+  elsif win?(computer_choice, player_choice)
+    tally_of_wins[:computer_wins] = tally_of_wins[:computer_wins] + 1
+  else
+    tally_of_wins[:ties] = tally_of_wins[:ties] + 1
+  end
 end
 
 def three_wins?(wins)
   wins == 3
 end
 
-def display_three_wins(player_wins, computer_wins)
-  if three_wins?(player_wins)
+def display_three_wins(tally_of_wins)
+  if three_wins?(tally_of_wins[:player_wins])
     prompt('You win! You are the grand winner!')
     border_lines
-  elsif three_wins?(computer_wins)
+  elsif three_wins?(tally_of_wins[:computer_wins])
     prompt('Computer wins! It is the grand winner!')
     border_lines
   end
 end
 
-def display_results(player, computer)
+def display_wins(tally_of_wins, number_of_games)
   border_lines
-  prompt("You chose: #{player}; computer chose: #{computer}")
+  prompt("Your score: #{tally_of_wins[:player_wins]}")
+  prompt("Computer score: #{tally_of_wins[:computer_wins]}")
+  prompt("Ties: #{tally_of_wins[:ties]}")
+  prompt("Number of games played:  #{number_of_games}")
+  border_lines
 
-  if win?(player, computer)
-    prompt('You won!')
-  elsif win?(computer, player)
+  display_three_wins(tally_of_wins)
+end
+
+def display_results(player_choice, computer_choice, tally_of_wins, number_of_games)
+  prompt("You chose: #{player_choice.upcase}; computer chose: #{computer_choice.upcase}")
+
+  if win?(player_choice, computer_choice)
+    prompt('You won!') 
+  elsif win?(computer_choice, player_choice)
     prompt('You lost!')
   else
     prompt("It's a tie!")
   end
+
+  display_wins(tally_of_wins, number_of_games)
 end
 
-def display_wins(player_wins, computer_wins, number_of_games)
-  border_lines
-  prompt("Your score: #{player_wins}")
-  prompt("Computer score: #{computer_wins} ")
-  prompt("Number of games played:  #{number_of_games}")
-  border_lines
-end
-
-# Main program
-display_welcome_prompt
-
-# Main loop
-loop do
-  computer_wins = 0
-  player_wins = 0
-  number_of_games = 0
-
+def play_3_games(tally_of_wins, number_of_games)
   loop do
-    player_choice = set_valid_choice
-
-    player_choice = set_spock_or_scissors if player_choice == 's'
-    player_choice = get_full_choice_name(player_choice) if player_choice.length <= 2
-
+    player_choice = set_player_choice
     computer_choice = COMPUTER_CHOICES.sample
 
-    player_wins += 1 if win?(player_choice, computer_choice)
-    computer_wins += 1 if win?(computer_choice, player_choice)
+    wins_ties_total(player_choice, computer_choice, tally_of_wins)
     number_of_games += 1
 
     system('clear')
 
-    display_results(player_choice, computer_choice)
-    display_wins(player_wins, computer_wins, number_of_games)
-    display_three_wins(player_wins, computer_wins)
+    display_results(player_choice, computer_choice, tally_of_wins, number_of_games)
 
-    break if three_wins?(player_wins) || three_wins?(computer_wins)
+    break if three_wins?(tally_of_wins[:player_wins]) || three_wins?(tally_of_wins[:computer_wins])
 
     prompt("Choose one: #{COMPUTER_CHOICES.join(', ')}.")
   end
+end
+
+# Main loop
+loop do
+  tally_of_wins = { computer_wins: 0,
+                    player_wins: 0,
+                    ties: 0 }
+  number_of_games = 0
+
+  display_welcome_prompt
+
+  play_3_games(tally_of_wins, number_of_games)
 
   prompt('Do you want to start a new game? Type Y/y to continue.')
   answer = gets.chomp
