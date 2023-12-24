@@ -128,6 +128,40 @@ class Player
   end
 end
 
+class Human < Player
+  def set_name
+    username = ''
+    loop do
+      puts "What's your name?"
+      username = gets.chomp
+      break unless username.empty?
+      puts "Sorry, must enter a value"
+    end
+
+    system 'clear'
+    self.name = username.capitalize
+  end
+
+  def set_marker
+    answer = nil
+    puts "Pick your marker!"
+    puts "Please type in one letter or symbol except for 'O'."
+    loop do
+      answer = gets.chomp
+      break if answer.size == 1 && !answer.empty? && answer != 'O'
+      puts "Invalid choice. Please enter one letter or symbol except for 'O'"
+    end
+
+    self.marker = answer
+  end
+end
+
+class Computer < Player
+  def set_name
+    self.name = %w[Botbot ComCom R2D2 Hairball Banana Machine].sample
+  end
+end
+
 class TTTGame
   COMPUTER_MARKER = 'O'
 
@@ -135,8 +169,8 @@ class TTTGame
 
   def initialize
     @board = Board.new
-    @human = Player.new
-    @computer = Player.new(COMPUTER_MARKER)
+    @human = Human.new
+    @computer = Computer.new(COMPUTER_MARKER)
     @current_marker = nil
   end
 
@@ -144,7 +178,7 @@ class TTTGame
     clear
     set_players_names
     display_welcome_message
-    set_human_marker
+    human.set_marker
     set_first_to_move
     main_game
     display_goodbye_message
@@ -173,39 +207,9 @@ class TTTGame
     end
   end
 
-  def set_human_name
-    username = ''
-    loop do
-      puts "What's your name?"
-      username = gets.chomp
-      break unless username.empty?
-      puts "Sorry, must enter a value"
-    end
-
-    system 'clear'
-    human.name = username.capitalize
-  end
-
-  def set_computer_name
-    computer.name = %w[Botbot ComCom R2D2 Hairball Banana Machine].sample
-  end
-
   def set_players_names
-    set_human_name
-    set_computer_name
-  end
-
-  def set_human_marker
-    answer = nil
-    puts "Pick your marker!"
-    puts "Please type in one letter or symbol except for 'O'."
-    loop do
-      answer = gets.chomp
-      break if answer.size == 1 && !answer.empty? && answer != 'O'
-      puts "Invalid choice. Please enter one letter or symbol except for 'O'"
-    end
-
-    @human.marker = answer
+    human.set_name
+    computer.set_name
   end
 
   def set_first_to_move
@@ -217,11 +221,7 @@ class TTTGame
       puts "Invalid choice please pick player (p) or computer (c)"
     end
 
-    @current_marker = if answer == 'computer' || answer == 'c'
-                        COMPUTER_MARKER
-                      else
-                        human.marker
-                      end
+    @current_marker = %w(c computer).include?(answer) ? COMPUTER_MARKER : human.marker
   end
 
   def display_welcome_message
